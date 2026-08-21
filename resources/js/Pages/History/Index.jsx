@@ -1,5 +1,5 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 
 const Index = ({ bookings }) => {
     const getStatusStyle = (status) => {
@@ -13,6 +13,8 @@ const Index = ({ bookings }) => {
         }
     };
 
+    const { flash } = usePage().props;
+
     return (
         <>
             <AuthenticatedLayout
@@ -24,6 +26,16 @@ const Index = ({ bookings }) => {
             >
                 <Head title="Riwayat Booking" />
                 <div className="py-12">
+                    {flash?.error && (
+                        <div className="mb-4 rounded border max-w-7xl mx-auto border-red-200 bg-red-50 px-4 py-3 text-red-700">
+                            {flash.error}
+                        </div>
+                    )}
+                    {flash?.success && (
+                        <div className="mb-4 rounded border max-w-7xl mx-auto border-green-200 bg-green-50 px-4 py-3 text-green-700">
+                            {flash.success}
+                        </div>
+                    )}
                     <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                         <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg p-6 border border-gray-100">
                             {bookings.length === 0 ? (
@@ -58,6 +70,9 @@ const Index = ({ bookings }) => {
                                                 </th>
                                                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                                     Status
+                                                </th>
+                                                <th className="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                                    Keterangan
                                                 </th>
                                                 <th className="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                                     Aksi
@@ -128,6 +143,38 @@ const Index = ({ bookings }) => {
                                                             <span className="text-xs text-gray-400">
                                                                 Batal
                                                             </span>
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        {[
+                                                            "cancelled",
+                                                            "rejected",
+                                                        ].includes(
+                                                            booking.status,
+                                                        ) && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    if (
+                                                                        confirm(
+                                                                            "Hapus riwayat booking ini?",
+                                                                        )
+                                                                    ) {
+                                                                        router.delete(
+                                                                            route(
+                                                                                "history.destroy",
+                                                                                booking.id,
+                                                                            ),
+                                                                            {
+                                                                                preserveScroll: true,
+                                                                            },
+                                                                        );
+                                                                    }
+                                                                }}
+                                                                className="ml-2 rounded bg-red-600 mx-auto px-3 py-1.5 text-xs font-bold text-white shadow hover:bg-red-500 transition"
+                                                            >
+                                                                Hapus
+                                                            </button>
                                                         )}
                                                     </td>
                                                 </tr>

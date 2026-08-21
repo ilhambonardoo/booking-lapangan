@@ -1,16 +1,34 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import GuestLayout from "@/Layouts/GuestLayout";
 import { Head, Link } from "@inertiajs/react";
+import { ArrowLeft } from "lucide-react";
 
 export default function Index({ auth, venues }) {
+    const Layout = auth?.user ? AuthenticatedLayout : GuestLayout;
+
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Katalog Lapangan Olahraga
-                </h2>
-            }
+        <Layout
+            auth={auth}
+            {...(auth?.user
+                ? {
+                      header: (
+                          <h2 className="text-xl font-semibold leading-tight text-gray-800">
+                              Katalog Lapangan Olahraga
+                          </h2>
+                      ),
+                  }
+                : {})}
         >
             <Head title="Katalog Lapangan" />
+
+            {!auth.user && (
+                <Link
+                    href={"/"}
+                    className="mx-auto mb-4 flex max-w-7xl items-center px-4 text-gray-600 hover:text-gray-900 sm:px-6 lg:px-8"
+                >
+                    <ArrowLeft size={25} />
+                </Link>
+            )}
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -77,6 +95,6 @@ export default function Index({ auth, venues }) {
                     )}
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </Layout>
     );
 }
