@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBookingRequest;
 use App\Models\Booking;
+use App\Models\User;
 use App\Models\Venue;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class BookingController extends Controller
@@ -24,12 +28,24 @@ class BookingController extends Controller
         return DB::transaction(function () use ($request){
             $venue = Venue::where('id', $request->venue_id)->lockForUpdate()->firstOrFail();
 
-            $user = $request->user();
+            if (!Auth::check()){
+                $user = User::where('email', $request->email)->first();
 
-            if(!$user){
-                abort(401, "Invalid User");
+                if(!$user){
+                    $user = User::create([
+                        'name' => $request->name,
+                        'email' => $request->email,
+                        'password' => Hash::make(Str::random(16)),
+                        'role' => 'user',
+                    ]);
+                }
+
+                Auth::login($user);
+
+            } else {
+                $user = Auth::user();
             }
-
+            
             $isConflict = Booking::where('venue_id', $venue->id)
                 ->where('booking_date', $request->booking_date)
                 ->where('status', '!=', 'cancelled')
